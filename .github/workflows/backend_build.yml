@@ -1,4 +1,4 @@
-name: Movie Picture Frontend
+name: Movie Picture Backend
 
 on:
   pull_request:
