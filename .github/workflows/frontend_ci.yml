@@ -71,13 +71,13 @@ jobs:
           node-version: '18.14'
 
       - name:  Build Frontend Docker Image
-        run:  docker build --build-arg=REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_URL --tag=mp-frontend:latest .
+        run:  docker build --build-arg=REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_URL --tag=movie-pipeline-frontend:latest .
 
       - name: Check if image is created
-        run: docker images|grep mp-frontend
+        run: docker images|grep movie-pipeline-frontend
 
       - name: Run docker image
-        run:  docker run --name mp-frontend -p 3000:3000 -d mp-frontend
+        run:  docker run --name movie-pipeline-frontend -p 3000:3000 -d movie-pipeline-frontend
 
       - name: Cache NPM dependencies
         uses: actions/cache@v3
