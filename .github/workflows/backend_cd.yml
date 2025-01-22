@@ -1,85 +1,85 @@
-name: Backend CD
+# name: Backend CD
 
-on:
-  push:
-    branches: main
-    paths: 'starter/backend/**'
+# on:
+#   push:
+#     branches: main
+#     paths: 'starter/backend/**'
 
-  workflow_dispatch:
+#   workflow_dispatch:
 
-defaults:
-  run:
-    working-directory: ./starter/backend
+# defaults:
+#   run:
+#     working-directory: ./starter/backend
 
-env:
-  PYTHON_VER: '3.10.6'
-  CLUSTER_NAME: cluster
+# env:
+#   PYTHON_VER: '3.10.6'
+#   CLUSTER_NAME: cluster
 
-jobs:
-  test-build-deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   test-build-deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Check out the code from the repository. 
-      uses: actions/checkout@v3
+#     steps:
+#     - name: Check out the code from the repository. 
+#       uses: actions/checkout@v3
 
-    - name: Set up a python environment using the specified version 
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ env.PYTHON_VER }}
+#     - name: Set up a python environment using the specified version 
+#       uses: actions/setup-python@v5
+#       with:
+#         python-version: ${{ env.PYTHON_VER }}
 
-    - name: Install pipenv
-      run: pip install pipenv
+#     - name: Install pipenv
+#       run: pip install pipenv
        
-    - name: Cache Pipenv
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.local/share/virtualenvs
-          ~/.pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/Pipfile.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+#     - name: Cache Pipenv
+#       uses: actions/cache@v3
+#       with:
+#         path: |
+#           ~/.local/share/virtualenvs
+#           ~/.pip
+#         key: ${{ runner.os }}-pip-${{ hashFiles('**/Pipfile.lock') }}
+#         restore-keys: |
+#           ${{ runner.os }}-pip-
 
-    - name: Install dependencies
-      run: pipenv install --dev
+#     - name: Install dependencies
+#       run: pipenv install --dev
 
-    - name: Run the linter.
-      run: pipenv run lint
+#     - name: Run the linter.
+#       run: pipenv run lint
 
-    - name: Run the tests
-      run:  pipenv run test
+#     - name: Run the tests
+#       run:  pipenv run test
       
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEYID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+#     - name: Configure AWS credentials
+#       uses: aws-actions/configure-aws-credentials@v2
+#       with:
+#         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEYID }}
+#         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#         aws-region: ${{ secrets.AWS_REGION }}
       
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+#     - name: Login to Amazon ECR
+#       id: login-ecr
+#       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build and Push Image to ECR
-      run :   |
-         docker build -t mp-backend:latest .
-         docker tag mp-backend:latest ${{ secrets.ECR_REG_NAME }}/backend:${GITHUB_SHA}
-         docker push ${{ secrets.ECR_REG_NAME }}/backend:${GITHUB_SHA}
+#     - name: Build and Push Image to ECR
+#       run :   |
+#          docker build -t mp-backend:latest .
+#          docker tag mp-backend:latest ${{ secrets.ECR_REG_NAME }}/backend:${GITHUB_SHA}
+#          docker push ${{ secrets.ECR_REG_NAME }}/backend:${GITHUB_SHA}
 
-    - name: Update kubeconfig
-      run:   |
-          echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
-          aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+#     - name: Update kubeconfig
+#       run:   |
+#           echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
+#           aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
-    - name: Deploy to K8s
-      run :   |
-          cd k8s
-          kustomize edit set image backend=${{ secrets.ECR_REG_NAME }}/backend:${GITHUB_SHA}
-          kustomize build|kubectl apply -k .
+#     - name: Deploy to K8s
+#       run :   |
+#           cd k8s
+#           kustomize edit set image backend=${{ secrets.ECR_REG_NAME }}/backend:${GITHUB_SHA}
+#           kustomize build|kubectl apply -k .
 
-    - name: Gather K8 status
-      run :   |
-          kubectl get pods -A
-          kubectl get svc -A
-          kubectl describe pods -A
+#     - name: Gather K8 status
+#       run :   |
+#           kubectl get pods -A
+#           kubectl get svc -A
+#           kubectl describe pods -A

@@ -83,8 +83,10 @@ jobs:
         run: docker images|grep movie-pipeline-backend
 
       - name: Run docker image
-        run:  docker run --name movie-pipeline-backend -p 3000:3000 -d movie-pipeline-backend
-  
+        run:  docker run -p 5000:5000 --name movie-pipeline-backend -d movie-pipeline-backend
+      
+      - name : Check if Application Runs
+        run: curl  http://localhost:5000/movies
 
       - name: Install pipenv
         run: pip install pipenv
