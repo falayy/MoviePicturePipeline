@@ -3,7 +3,6 @@ name: Movie Pipeline Frontend CD
 on:
   push:
     branches: main
-    paths: 'starter/frontend/**'
 
   workflow_dispatch:
 
