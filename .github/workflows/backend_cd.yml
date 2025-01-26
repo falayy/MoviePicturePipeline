@@ -3,6 +3,7 @@ name: Movie Pipeline Backend CD
 on:
   push:
     branches: main
+    paths: 'starter/backend/**'
 
   workflow_dispatch:
 
@@ -62,9 +63,9 @@ jobs:
 
     - name: Build and Push Image to ECR
       run :   |
-         docker build -t movie-pipeline-backend:latest .
-         docker tag movie-pipeline-backend:latest ${{ secrets.ECR_REG_NAME }}/backend:${GITHUB_SHA}
-         docker push ${{ secrets.ECR_REG_NAME }}/backend:${GITHUB_SHA}
+         docker build -t mp-backend:latest .
+         docker tag mp-backend:latest 376129870713.dkr.ecr.us-east-1.amazonaws.com/backend:${GITHUB_SHA}
+         docker push 376129870713.dkr.ecr.us-east-1.amazonaws.com/backend:${GITHUB_SHA}
 
     - name: Update kubeconfig
       run:   |
@@ -74,7 +75,7 @@ jobs:
     - name: Deploy to K8s
       run :   |
           cd k8s
-          kustomize edit set image backend=${{ secrets.ECR_REG_NAME }}/backend:${GITHUB_SHA}
+          kustomize edit set image backend=376129870713.dkr.ecr.us-east-1.amazonaws.com/backend:${GITHUB_SHA}
           kustomize build|kubectl apply -k .
 
     - name: Gather K8 status
