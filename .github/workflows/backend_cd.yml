@@ -82,3 +82,4 @@ jobs:
           kubectl get pods -A
           kubectl get svc -A
           kubectl describe pods -A
+          
