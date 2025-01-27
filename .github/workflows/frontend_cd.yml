@@ -12,7 +12,7 @@ defaults:
 
 env:
   NODE_VER: '18.14'
-  FRONTEND_APP_MOVIE_URL: 'http://localhost:5000'
+  FRONTEND_APP_MOVIE_URL: 'aec221b30b67c4e7e9b153776859251b-254236948.us-east-1.elb.amazonaws.com'
   CLUSTER_NAME: cluster
 
 jobs:
@@ -58,8 +58,8 @@ jobs:
 
     - name: Build and Push Image to ECR
       run :   |
-         docker build --build-arg=REACT_APP_MOVIE_API_URL=$FRONTEND_APP_MOVIE_URL -t movie-pipeline-frontend:latest .
-         docker tag movie-pipeline-frontend:latest 376129870713.dkr.ecr.us-east-1.amazonaws.com/frontend:${GITHUB_SHA}
+         docker build --build-arg=REACT_APP_MOVIE_API_URL=$FRONTEND_APP_MOVIE_URL -t movie-pipeline-frontend:v1 .
+         docker tag movie-pipeline-frontend:v1 376129870713.dkr.ecr.us-east-1.amazonaws.com/frontend:${GITHUB_SHA}
          docker push 376129870713.dkr.ecr.us-east-1.amazonaws.com/frontend:${GITHUB_SHA}
 
     - name: Update kubeconfig
