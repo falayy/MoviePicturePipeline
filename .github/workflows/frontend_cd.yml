@@ -1,4 +1,4 @@
-name: Movie Pipeline Frontend CD
+name: Movie Pipeline Frontend CD.
 
 on:
   push:
